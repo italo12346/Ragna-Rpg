@@ -1,0 +1,13 @@
+.home-card {
+  max-width: 500px;
+  margin: 100px auto;
+  padding: 32px;
+  text-align: center;
+}
+
+.actions {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}

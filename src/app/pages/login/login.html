@@ -1,0 +1,67 @@
+<div class="login">
+  <div class="logo"></div>
+
+  <form [formGroup]="form" (ngSubmit)="logarEmail()" novalidate>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Email</mat-label>
+      <input
+        matInput
+        type="email"
+        formControlName="email"
+        autocomplete="email"
+      />
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Senha</mat-label>
+      <input
+        matInput
+        type="password"
+        formControlName="senha"
+        autocomplete="current-password"
+      />
+    </mat-form-field>
+
+    <button
+      mat-raised-button
+      color="primary"
+      type="submit"
+      [disabled]="form.invalid || loading"
+    >
+      Entrar
+    </button>
+
+    <button
+      mat-raised-button
+      color="warn"
+      type="button"
+      (click)="logarGoogle()"
+    >
+      Login com Google
+    </button>
+
+    <a
+      mat-button
+      color="primary"
+      *ngIf="!cadastro"
+      (click)="exibirCadastro()"
+    >
+      Não possui cadastro?
+    </a>
+
+    <a
+      mat-button
+      color="primary"
+      *ngIf="cadastro"
+      (click)="exibirLogin()"
+    >
+      Voltar
+    </a>
+
+    <p *ngIf="error" class="error">
+      {{ error }}
+    </p>
+
+  </form>
+</div>
