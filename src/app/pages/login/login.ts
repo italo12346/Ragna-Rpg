@@ -1,7 +1,7 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Component, inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
-import { Auth, authState, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from '@angular/fire/auth';
+import { Auth, authState, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword } from '@angular/fire/auth';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -42,10 +42,9 @@ export class LoginComponent implements OnInit {
   });
 
   ngOnInit() {
-    // Garantir que o código de auth só rode no navegador
     if (!isPlatformBrowser(this.platformId)) return;
 
-    // Observa mudanças de autenticação
+    // Use o auth já injetado
     authState(this.auth).subscribe(user => {
       if (user) {
         this.router.navigate(['/pre-jogo']);
@@ -60,6 +59,7 @@ export class LoginComponent implements OnInit {
     this.error = null;
 
     const { email, senha } = this.form.getRawValue();
+    console.log(email,senha);
 
     try {
       await signInWithEmailAndPassword(this.auth, email, senha);
@@ -96,7 +96,23 @@ export class LoginComponent implements OnInit {
   exibirCadastro() { this.cadastro = true; }
   exibirLogin() { this.cadastro = false; }
 
-  cadastrarEmail() {
-    this.snackBar.open('Cadastro ainda não implementado', 'Fechar', { duration: 3000 });
+async cadastrarEmail() {
+  if (this.form.invalid) return;
+
+  this.loading = true;
+  this.error = null;
+
+  const { email, senha } = this.form.getRawValue();
+
+  try {
+    await createUserWithEmailAndPassword(this.auth, email, senha);
+    this.snackBar.open('Cadastro realizado com sucesso', 'Fechar', { duration: 3000 });
+    this.router.navigate(['/pre-jogo']);
+  } catch (err: any) {
+    this.error = err.message ?? 'Erro ao realizar cadastro';
+    this.snackBar.open(this.error ?? 'Erro desconhecido', 'Fechar', { duration: 4000 });
+  } finally {
+    this.loading = false;
   }
+}
 }
