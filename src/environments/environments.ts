@@ -1,3 +1,4 @@
+
 export const environment = {
   production: false,
   firebase: {
@@ -8,5 +9,7 @@ export const environment = {
     messagingSenderId: '623781377990',
     appId: '1:623781377990:web:b0f135be73231ff62624c7',
     measurementId: 'G-M4J8XQ00VJ'
-  }
+  },
+  adminEmail: 'admin@admin.com'
+
 };

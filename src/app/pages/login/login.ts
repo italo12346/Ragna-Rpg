@@ -1,7 +1,14 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Component, inject, OnInit, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
-import { Auth, authState, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword } from '@angular/fire/auth';
+import {
+  Auth,
+  authState,
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+  createUserWithEmailAndPassword
+} from '@angular/fire/auth';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -26,13 +33,14 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
   styleUrls: ['./login.css']
 })
 export class LoginComponent implements OnInit {
+
   private auth = inject(Auth);
   private fb = inject(FormBuilder);
   private snackBar = inject(MatSnackBar);
   private router = inject(Router);
   private platformId = inject(PLATFORM_ID);
 
-  cadastro = false;
+  modoCadastro = false;
   loading = false;
   error: string | null = null;
 
@@ -41,10 +49,9 @@ export class LoginComponent implements OnInit {
     senha: ['', [Validators.required, Validators.minLength(6)]],
   });
 
-  ngOnInit() {
+  ngOnInit(): void {
     if (!isPlatformBrowser(this.platformId)) return;
 
-    // Use o auth já injetado
     authState(this.auth).subscribe(user => {
       if (user) {
         this.router.navigate(['/pre-jogo']);
@@ -52,67 +59,64 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  async logarEmail() {
+  alternarModo(): void {
+    this.modoCadastro = !this.modoCadastro;
+    this.error = null;
+  }
+
+  async submit(): Promise<void> {
     if (this.form.invalid) return;
 
     this.loading = true;
     this.error = null;
 
     const { email, senha } = this.form.getRawValue();
-    console.log(email,senha);
 
     try {
-      await signInWithEmailAndPassword(this.auth, email, senha);
+      if (this.modoCadastro) {
+        await createUserWithEmailAndPassword(this.auth, email, senha);
+        this.snackBar.open('Cadastro realizado com sucesso', 'Fechar', {
+          duration: 3000
+        });
+      } else {
+        await signInWithEmailAndPassword(this.auth, email, senha);
+        this.snackBar.open('Login realizado com sucesso', 'Fechar', {
+          duration: 3000
+        });
+      }
 
-      this.snackBar.open('Login realizado com sucesso', 'Fechar', { duration: 3000 });
       this.router.navigate(['/pre-jogo']);
 
     } catch (err: any) {
-      this.error = err.message ?? 'Erro ao realizar login';
-      this.snackBar.open(this.error ?? 'Erro desconhecido', 'Fechar', { duration: 4000 });
+      this.error = err?.message ?? 'Erro inesperado';
+      this.snackBar.open(this.error ?? 'Erro inesperado', 'Fechar', { duration: 4000 });
     } finally {
       this.loading = false;
     }
   }
 
-  async logarGoogle() {
+  async logarGoogle(): Promise<void> {
     if (!isPlatformBrowser(this.platformId)) return;
 
     this.loading = true;
+
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(this.auth, provider);
 
-      this.snackBar.open('Login com Google realizado com sucesso', 'Fechar', { duration: 3000 });
+      this.snackBar.open('Login com Google realizado com sucesso', 'Fechar', {
+        duration: 3000
+      });
+
       this.router.navigate(['/pre-jogo']);
     } catch (err) {
-      console.error(err);
-      this.snackBar.open('Erro ao realizar login com Google', 'Fechar', { duration: 4000 });
+      this.snackBar.open(
+        'Erro ao realizar login com Google',
+        'Fechar',
+        { duration: 4000 }
+      );
     } finally {
       this.loading = false;
     }
   }
-
-  exibirCadastro() { this.cadastro = true; }
-  exibirLogin() { this.cadastro = false; }
-
-async cadastrarEmail() {
-  if (this.form.invalid) return;
-
-  this.loading = true;
-  this.error = null;
-
-  const { email, senha } = this.form.getRawValue();
-
-  try {
-    await createUserWithEmailAndPassword(this.auth, email, senha);
-    this.snackBar.open('Cadastro realizado com sucesso', 'Fechar', { duration: 3000 });
-    this.router.navigate(['/pre-jogo']);
-  } catch (err: any) {
-    this.error = err.message ?? 'Erro ao realizar cadastro';
-    this.snackBar.open(this.error ?? 'Erro desconhecido', 'Fechar', { duration: 4000 });
-  } finally {
-    this.loading = false;
-  }
-}
 }

@@ -1,7 +1,7 @@
 <div class="login">
   <div class="logo"></div>
 
-  <form [formGroup]="form" (ngSubmit)="logarEmail()" novalidate>
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
 
     <mat-form-field appearance="fill">
       <mat-label>Email</mat-label>
@@ -19,7 +19,7 @@
         matInput
         type="password"
         formControlName="senha"
-        autocomplete="current-password"
+        [autocomplete]="modoCadastro ? 'new-password' : 'current-password'"
       />
     </mat-form-field>
 
@@ -29,7 +29,7 @@
       type="submit"
       [disabled]="form.invalid || loading"
     >
-      Entrar
+      {{ modoCadastro ? 'Criar conta' : 'Entrar' }}
     </button>
 
     <button
@@ -37,6 +37,7 @@
       color="warn"
       type="button"
       (click)="logarGoogle()"
+      *ngIf="!modoCadastro"
     >
       Login com Google
     </button>
@@ -44,19 +45,9 @@
     <a
       mat-button
       color="primary"
-      *ngIf="!cadastro"
-      (click)="exibirCadastro()"
+      (click)="alternarModo()"
     >
-      Não possui cadastro?
-    </a>
-
-    <a
-      mat-button
-      color="primary"
-      *ngIf="cadastro"
-      (click)="exibirLogin()"
-    >
-      Voltar
+      {{ modoCadastro ? 'Já tenho conta' : 'Não possui cadastro?' }}
     </a>
 
     <p *ngIf="error" class="error">
